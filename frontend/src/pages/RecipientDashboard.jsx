@@ -9,7 +9,7 @@ export default function RecipientDashboard() {
   const DONATIONS_URL = "http://localhost:5007/api/donations";
   const REQUESTS_URL = "http://localhost:5007/api/requests";
 
-  // Load only approved donations
+
   const fetchDonations = async () => {
     try {
       const res = await fetch(DONATIONS_URL, {
@@ -21,8 +21,6 @@ export default function RecipientDashboard() {
       const data = await res.json();
       if (!res.ok) return alert(data.message);
 
-      // backend already filters by recipient role,
-      // but we ensure here too
       const approved = data.filter((d) => d.status === "approved");
       setDonations(approved);
     } catch (err) {
@@ -72,7 +70,7 @@ export default function RecipientDashboard() {
 
       alert("Request submitted!");
 
-      fetchMyRequests(); // reload requests
+      fetchMyRequests(); 
     } catch (err) {
       console.error(err);
       alert("Failed to submit request");
