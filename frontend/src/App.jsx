@@ -7,10 +7,12 @@ import DonorDashboard from "./pages/DonorDashboard";
 import RecipientDashboard from "./pages/RecipientDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 
 
 export default function App() {
   return (
+    <AuthProvider>
       <Router>
         <Navbar />
         <div className="container">
@@ -49,5 +51,6 @@ export default function App() {
           </Routes>
         </div>
       </Router>
+    </AuthProvider>
   );
 }
