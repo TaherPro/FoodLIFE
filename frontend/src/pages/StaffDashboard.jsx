@@ -145,7 +145,7 @@ export default function StaffDashboard() {
 
       <hr />
 
-      {/* -------------------- Requests Section -------------------- */}
+      {/* Requests Section */}
       <h2>Manage Requests</h2>
 
       {requests.length === 0 ? (
