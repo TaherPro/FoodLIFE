@@ -10,7 +10,7 @@ const donationSchema = new mongoose.Schema(
     category: { type: String, default: "other" },
     status: {
       type: String,
-      enum: ["pending", "approved", "reserved", "completed"],
+      enum: ["pending", "approved", "reserved", "completed", "rejected"],
       default: "pending"
     }
   },
