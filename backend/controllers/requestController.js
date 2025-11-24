@@ -2,7 +2,7 @@ import Request from "../models/Request.js";
 import Donation from "../models/Donation.js";
 import ApiError from "../utils/ApiError.js";
 
-// CREATE request (Recipient only)
+// recipient create request
 export const createRequest = async (req, res, next) => {
   try {
     console.log("BODY:", req.body);
@@ -44,7 +44,7 @@ export const getMyRequests = async (req, res, next) => {
   }
 };
 
-// STAFF — GET all requests
+// STAFF GET all requests
 export const getAllRequests = async (req, res, next) => {
   try {
     const requests = await Request.find()
@@ -61,7 +61,7 @@ export const getAllRequests = async (req, res, next) => {
 // STAFF — update request status
 export const updateRequestStatus = async (req, res, next) => {
   try {
-    const { status } = req.body; // "approved" / "rejected" / "picked_up"
+    const { status } = req.body; 
     const request = await Request.findById(req.params.id);
 
     if (!request) return next(new ApiError(404, "Request not found"));
@@ -87,3 +87,15 @@ export const updateRequestStatus = async (req, res, next) => {
     next(error);
   }
 };
+export const deleteRequest = async (req, res, next) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) return next(new ApiError(404, "Request not found"));
+
+    await request.deleteOne();
+    res.json({ message: "Request deleted" });
+  } catch (err) {
+    next(err);
+  }
+};
+

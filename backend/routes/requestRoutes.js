@@ -3,7 +3,8 @@ import {
   createRequest,
   getMyRequests,
   getAllRequests,
-  updateRequestStatus
+  updateRequestStatus,
+  deleteRequest
 } from "../controllers/requestController.js";
 
 import { protect, restrictTo } from "../middleware/authMiddleware.js";
@@ -21,5 +22,8 @@ router.get("/", protect, restrictTo("staff"), getAllRequests);
 
 // Staff updates request status
 router.put("/:id", protect, restrictTo("staff"), updateRequestStatus);
+
+// Staff delete request
+router.delete("/:id", protect, restrictTo("staff"), deleteRequest);
 
 export default router;

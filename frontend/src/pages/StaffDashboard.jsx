@@ -10,7 +10,7 @@ export default function StaffDashboard() {
   const DONATIONS_URL = "http://localhost:5007/api/donations";
   const REQUESTS_URL = "http://localhost:5007/api/requests";
 
-  // Load donations
+  // Load all donations
   const fetchDonations = async () => {
     try {
       const res = await fetch(DONATIONS_URL, {
@@ -27,7 +27,7 @@ export default function StaffDashboard() {
     }
   };
 
-  // Load requests
+  // Load all requests
   const fetchRequests = async () => {
     try {
       const res = await fetch(REQUESTS_URL, {
@@ -71,7 +71,7 @@ export default function StaffDashboard() {
     }
   };
 
-  // Approve / Reject / Mark picked_up for request
+  // Approve / Reject / Picked Up
   const updateRequestStatus = async (id, status) => {
     try {
       const res = await fetch(`${REQUESTS_URL}/${id}`, {
@@ -86,11 +86,64 @@ export default function StaffDashboard() {
       const data = await res.json();
       if (!res.ok) return alert(data.message);
 
-      fetchRequests();
-      fetchDonations(); 
+      setRequests(requests.filter((r) => r._id !== id));
+
+      fetchDonations();
     } catch (err) {
       console.error(err);
       alert("Failed to update request");
+    }
+  };
+
+  // Delete request
+  const deleteRequest = async (id) => {
+    if (!confirm("Delete this request?")) return;
+
+    try {
+      const res = await fetch(`${REQUESTS_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) return alert(data.message);
+
+      setRequests(requests.filter((r) => r._id !== id));
+
+      alert("Request deleted.");
+    } catch (err) {
+      console.error(err);
+      alert("Server Error");
+    }
+  };
+
+  // Delete donation by staff
+  const deleteDonation = async (id) => {
+    if (!confirm("Are you sure you want to delete this donation?")) return;
+
+    try {
+      const res = await fetch(`${DONATIONS_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Failed to delete donation");
+        return;
+      }
+
+      setDonations(donations.filter((d) => d._id !== id));
+
+      alert("Donation deleted successfully.");
+    } catch (err) {
+      alert("Server Error");
     }
   };
 
@@ -98,7 +151,7 @@ export default function StaffDashboard() {
     <div>
       <h1>Staff Dashboard</h1>
 
-      {/* Donations Section*/}
+      {/* Donations Section */}
       <h2>Manage Donations</h2>
 
       {donations.length === 0 ? (
@@ -113,14 +166,12 @@ export default function StaffDashboard() {
             <p><strong>Location:</strong> {d.location}</p>
             <p><strong>Status:</strong> {d.status}</p>
 
-            {/* Staff controls */}
             <div style={{ display: "flex", gap: "10px" }}>
               {d.status === "pending" && (
                 <>
                   <button onClick={() => updateDonationStatus(d._id, "approved")}>
                     Approve
                   </button>
-
                   <button onClick={() => updateDonationStatus(d._id, "rejected")}>
                     Reject
                   </button>
@@ -138,6 +189,13 @@ export default function StaffDashboard() {
               {d.status === "completed" && (
                 <button disabled>Completed</button>
               )}
+
+              <button
+                onClick={() => deleteDonation(d._id)}
+                style={{ background: "#e74c3c" }}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))
@@ -153,11 +211,10 @@ export default function StaffDashboard() {
       ) : (
         requests.map((r) => (
           <div className="card" key={r._id}>
-            <h3>{r.donation?.itemName}</h3>
+            <h3>{r.donation?.itemName || "Donation Deleted"}</h3>
             <p><strong>Recipient:</strong> {r.recipient?.name}</p>
             <p><strong>Status:</strong> {r.status}</p>
 
-            {/* Staff controls */}
             <div style={{ display: "flex", gap: "10px" }}>
               {r.status === "pending" && (
                 <>
@@ -172,17 +229,31 @@ export default function StaffDashboard() {
               )}
 
               {r.status === "approved" && (
-                <button onClick={() => updateRequestStatus(r._id, "picked_up")}>
-                  Mark as Picked Up
+                <>
+                  <button onClick={() => updateRequestStatus(r._id, "picked_up")}>
+                    Mark as Picked Up
+                  </button>
+
+                  <button
+                    onClick={() => deleteRequest(r._id)}
+                    style={{ background: "#e74c3c" }}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+
+              {r.status === "rejected" && (
+                <button
+                  onClick={() => deleteRequest(r._id)}
+                  style={{ background: "#e74c3c" }}
+                >
+                  Delete
                 </button>
               )}
 
               {r.status === "picked_up" && (
                 <button disabled>Picked Up</button>
-              )}
-
-              {r.status === "rejected" && (
-                <button disabled>Rejected</button>
               )}
             </div>
           </div>
